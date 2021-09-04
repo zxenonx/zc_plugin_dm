@@ -31,11 +31,11 @@ SECRET_KEY = str(os.getenv('SECRET_KEY'))
 DEBUG = str(os.getenv('DEBUG'))
 
 
-ALLOWED_HOSTS = ["dm.zuri.chat"]
+ALLOWED_HOSTS = ["dm.zuri.chat", "127.0.0.1"]
 
 CORS_ALLOWED_ORIGINS = [
     "https://dm.zuri.chat",
-    "dm.zuri.chat"
+    "http://dm.zuri.chat"
 ]
 
 # Application definition
@@ -144,13 +144,13 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': 'webpack_bundles/',  # must end with slash
-        'STATS_FILE': BASE_DIR.joinpath('frontend', 'webpack-stats.json'),
-        'POLL_INTERVAL': 0.1,
-        'TIMEOUT': None,
-        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
-    }
-}
+# WEBPACK_LOADER = {
+#     'DEFAULT': {
+#         'CACHE': not DEBUG,
+#         'BUNDLE_DIR_NAME': 'webpack_bundles/',  # must end with slash
+#         'STATS_FILE': BASE_DIR.joinpath('frontend', 'webpack-stats.json'),
+#         'POLL_INTERVAL': 0.1,
+#         'TIMEOUT': None,
+#         'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+#     }
+# }
