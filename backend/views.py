@@ -145,40 +145,35 @@ def side_bar(request):
     starred_rooms = []
     if user_rooms != None:
         for room in user_rooms:
-            if "org_id" in room:
-                if org_id == room["org_id"]:
-                    room_profile = {}
-                    room_profile["room_id"] = room["_id"]
-                    room_profile["room_url"] = f"/dm/{org_id}/{room['_id']}/{user_id}"
-                    for id in room["room_user_ids"]:
-                        if id != user_id:
-                            profile = get_user_profile(org_id, id)
-                            if profile["status"] == 200:
-                                if profile["data"]["user_name"]:
-                                    room_profile["room_name"] = profile["data"][
-                                        "user_name"
-                                    ]
-                                else:
-                                    room_profile["room_name"] = "no user name"
-                                if profile["data"]["image_url"]:
-                                    room_profile["room_image"] = profile["data"][
-                                        "image_url"
-                                    ]
-                                else:
-                                    room_profile[
-                                        "room_image"
-                                    ] = "https://cdn.iconscout.com/icon/free/png-256/account-avatar-profile-human-man-user-30448.png"
-                            else:
-                                room_profile["room_name"] = "no user name"
-                                room_profile[
-                                    "room_image"
-                                ] = "https://cdn.iconscout.com/icon/free/png-256/account-avatar-profile-human-man-user-30448.png"
-                            star = requests.get(f"https://dm.zuri.chat/api/v1/org/{org_id}/rooms/{room['_id']}/members/{user_id}/star") 
-                            if "status" in star.json():
-                                if star.json()["status"] == True:
-                                    starred_rooms.append(room_profile)
-                                    print(room_profile)
-                    rooms.append(room_profile)
+            if "org_id" in room and org_id == room["org_id"]:
+                room_profile = {
+                    'room_id': room["_id"],
+                    'room_url': f"/dm/{org_id}/{room['_id']}/{user_id}",
+                }
+
+                for id in room["room_user_ids"]:
+                    if id != user_id:
+                        profile = get_user_profile(org_id, id)
+                        if profile["status"] == 200:
+                            room_profile["room_name"] = profile["data"]["user_name"] or "no user name"
+                            room_profile["room_image"] = (
+                                profile["data"]["image_url"]
+                                or "https://cdn.iconscout.com/icon/free/png-256/account-avatar-profile-human-man-user-30448.png"
+                            )
+
+                        else:
+                            room_profile["room_name"] = "no user name"
+                            room_profile[
+                                "room_image"
+                            ] = "https://cdn.iconscout.com/icon/free/png-256/account-avatar-profile-human-man-user-30448.png"
+                        star = requests.get(f"https://dm.zuri.chat/api/v1/org/{org_id}/rooms/{room['_id']}/members/{user_id}/star")
+                        if (
+                            "status" in star.json()
+                            and star.json()["status"] == True
+                        ):
+                            starred_rooms.append(room_profile)
+                            print(room_profile)
+                rooms.append(room_profile)
 
     side_bar = {
         "name": "DM Plugin",
@@ -358,7 +353,7 @@ def send_reply(request, room_id, message_id):
     print(request)
     serializer = MessageSerializer(data=request.data)
     reply_response = DB.read("dm_messages", {"_id": message_id})
-    if reply_response and reply_response.get("status_code", None) == None:
+    if reply_response and reply_response.get("status_code", None) is None:
         replied_message = reply_response
     else:
         return Response(
@@ -372,7 +367,7 @@ def send_reply(request, room_id, message_id):
         room_id = data["room_id"]  # room id gotten from client request
 
         room = DB.read("dm_rooms", {"_id": room_id})
-        if room and room.get("status_code", None) == None:
+        if room and room.get("status_code", None) is None:
             if data["sender_id"] in room.get("room_user_ids", []):
                 data["replied_message"] = replied_message
                 response = DB.write("dm_messages", data=data)

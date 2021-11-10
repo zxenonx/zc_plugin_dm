@@ -17,6 +17,5 @@ def db_init_with_credentials(view_func):
 
         DB = DataStorage(request)
         view_func.__globals__.update({"DB": DB})
-        view = view_func(request, *args, **kwargs)
-        return view
+        return view_func(request, *args, **kwargs)
     return _wrapped_view
