@@ -12,11 +12,11 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+from datetime import timedelta
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
-FRONTEND_DIR = BASE_DIR / 'frontend'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -25,15 +25,37 @@ FRONTEND_DIR = BASE_DIR / 'frontend'
 SECRET_KEY = str(os.getenv('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = str(os.getenv('DEBUG'))
+DEBUG = True  # str(os.getenv('DEBUG'))
 
 
-ALLOWED_HOSTS = ["dm.zuri.chat", "127.0.0.1"]
+ALLOWED_HOSTS = ["dm.zuri.chat", "127.0.0.1", "zuri.chat/dm"]
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGINS = [
+#     # "https://zuri.chat",
+#     # "http://zuri.chat",
+#     # "http://127.0.0.1",
+#     # "http://localhost:8000",
+# ]
 
-CORS_ALLOWED_ORIGINS = [
-    "https://dm.zuri.chat",
-    "http://dm.zuri.chat"
-]
+
+# rest_framework global configs
+REST_FRAMEWORK = {
+    "DEFAULT_PARSER_CLASSES": [
+        'rest_framework.parsers.JSONParser',
+    ],
+
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        'rest_framework_simplejwt.authentication.JWTTokenUserAuthentication',
+    ],
+
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+}
+
+SIMPLE_JWT = {
+    'TOKEN_LIFETIME': timedelta(hours=10),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
 # Application definition
 
@@ -46,14 +68,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'rest_framework_simplejwt',
     'webpack_loader',
     'backend',
+    'drf_yasg',
 
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -65,10 +89,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'zc_plugin_dm.urls'
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'database.sqlite'
+    }
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [os.path.join(BASE_DIR, "dmspa", "dist"), ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,12 +118,12 @@ WSGI_APPLICATION = 'zc_plugin_dm.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -132,12 +163,29 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static")
+    # os.path.join(BASE_DIR, "frontend", "dist", "static")
+    os.path.join(BASE_DIR, "dmspa", "dist"),
+    # os.path.join(BASE_DIR, "dmplugins", "dist"),
+    os.path.join(BASE_DIR, "dmreactplugin", "dist")
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'relative_paths': False,
+    "DISPLAY_OPERATION_ID": False,
+    'SECURITY_DEFINITIONS': {
+        'basic': {
+            'type': 'basic'
+        }
+    },
+}

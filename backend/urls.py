@@ -1,91 +1,216 @@
-from . import views
-from django.urls import path
-from django.conf.urls import url
+from backend import sync
+from . import views, rooms, messaging, members, media, threads, booklinks, reactions
+from .testingapi import Test
 
-app_name = 'backend'
+# from .views import EditMessage
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from django.conf import settings
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('api/info', views.info, name='plugin_info'),
-    path('api/sidebar', views.side_bar, name='sidebar'),
-    path('api/organizations', views.organizations, name='organizations'),
-    path('api/organizations/id', views.organization, name='organization'),
-    path('api/organizations/id/users', views.users, name='users'),
-    path('api/organizations/id/users/id', views.user, name='user'),
-    path('api/organizations/id/rooms', views.rooms, name='rooms'),
-    path('api/organizations/id/rooms/id', views.room, name='room'),
-    path('api/organizations/id/rooms/id/users/',
-         views.room_users, name='room_users'),
-    path('api/organizations/id/rooms/id/messages',
-         views.room_messages, name='room_messages'),
-    path('api/organizations/id/rooms/id/messages/id',
-         views.room_message, name='room_message'),
-    path('api/organizations/id/rooms/id/media',
-         views.room_medias, name='room_medias'),
-    path('api/organizations/id/rooms/id/media/id',
-         views.room_media, name='room_media'),
-    path('api/organizations/id/rooms/id/files',
-         views.room_files, name='room_files'),
-    path('api/organizations/id/rooms/id/files/id',
-         views.room_file, name='room_file'),
+    path("", views.index, name="index"),
+    path("api/v1/ping", views.PING, name="ping"),
+    path("api/v1/info", views.info, name="plugin_info"),
+    path("dm/install", views.dm_install, name="install"),
+    # path("dm/uninstall", views.dm_uninstall, name="uninstall"),
+    path("api/v1/sidebar", views.side_bar, name="sidebar"),
+    path(
+        "api/v1/org/<str:org_id>/users/<str:member_id>/room",
+        rooms.create_room,
+        name="create_room",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/info",
+        rooms.room_info,
+        name="room_info",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/users/<str:user_id>/rooms",
+        rooms.user_rooms,
+        name="get_user_rooms",
+    ),
+    path(
+        "api/v1/search/<str:org_id>/<str:member_id>",
+        rooms.search_DM,
+        name="search DM",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/member",
+        rooms.group_member_add,
+        name="group_user_add",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/members/<str:member_id>/close_conversation",
+        rooms.close_conversation,
+        name="close_conversation",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/members/<str:member_id>/star",
+        rooms.star_room,
+        name="star_room",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/members/<str:member_id>/all_dms",
+        rooms.all_dms,
+        name="all_dms",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages",
+        messaging.message_create_get,
+        name="create_get_message",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/updatemessage/<str:message_id>/room/<str:room_id>",
+        messaging.edit_message,
+        name="updateroom",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/message",
+        messaging.delete_message,
+        name="delete_message",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/schedule-message",
+        messaging.scheduled_messages,
+        name="scheduled_messages",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/messages/<str:message_id>/read",
+        messaging.mark_read,
+        name="mark_read",
+    ),
+    path(  # might require a room id
+        "api/v1/org/<str:org_id>/messages/<str:message_id>/pin",
+        messaging.pinned_message,
+        name="pin_message",
+    ),
+    path(  # it is creating a reminder for a message
+        "api/v1/org/<str:org_id>/reminder",
+        views.create_reminder,
+        name="create_reminder",
+    ),
+    path(  # review needed???
+        "api/v1/<str:org_id>/<str:room_id>/filter_messages",
+        views.message_filter,
+        name="message_filter",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/reply",
+        views.send_reply,
+        name="reply",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/links",
+        booklinks.get_links,
+        name="get_links",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/messages/<str:message_id>/link",
+        booklinks.copy_message_link,
+        name="copy_message_link",
+    ),
+    path(  # review needed
+        "getmessage/<str:room_id>/<str:message_id>",
+        booklinks.read_message_link,
+        name="read_message_link",
+    ),
+    path(
+        "api/v1/<str:org_id>/<str:room_id>/<str:message_id>/pinnedmessage/",
+        booklinks.read_message_link,
+        name="read_pinned_message",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/new-bookmark",
+        booklinks.save_bookmark,
+        name="create_bookmark",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/bookmarks",
+        booklinks.retrieve_bookmarks,
+        name="get_bookmarks",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/bookmark",
+        booklinks.delete_bookmark,
+        name="delete_bookmark",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/reactions",
+        reactions.Emoji.as_view(),
+        name="message_reactions",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads/<str:thread_message_id>/reactions",
+        reactions.ThreadEmoji.as_view(),
+        name="thread_message_reaction",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads/<str:thread_message_id>/read_status",
+        threads.update_thread_read_status,
+        name="update_thread_read_status",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads/<str:thread_message_id>/channel_message",
+        threads.send_thread_message_to_channel,
+        name="send_thread_messsage_to_channel",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads/<str:thread_message_id>/link",
+        threads.copy_thread_message_link,
+        name="copy_thread_messsage_link",
+    ),
+    path(
+        "thread_message/<str:org_id>/<str:room_id>/<str:message_id>/<str:thread_message_id>",
+        threads.read_thread_message_link,
+        name="read_thread_messsage_link",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads/<str:thread_message_id>/pinned",
+        threads.pinned_thread_message,
+        name="pinned_thread_messsage",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads",
+        threads.ThreadListView.as_view(),
+        name="thread_messsage_create_get",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messages/<str:message_id>/threads/<str:thread_message_id>",
+        threads.ThreadDetailView.as_view(),
+        name="thread_messsage_update_delete",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/users/<str:member_id>/threads",
+        threads.get_all_threads,
+        name="get_all_threads",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/rooms/<str:room_id>/messagemedia",
+        media.SendFile.as_view(),
+        name="media_files",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/members",
+        members.organization_members,
+        name="organization_members",
+    ),
+    path(
+        "api/v1/org/<str:org_id>/members/<str:member_id>/profile",
+        members.user_profile,
+        name="user_profile",
+    ),
+    path("api/v1/sync", sync.sync_notifier, name="sync_notifier"),
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
-    # Specific Routes for task
-    path('api/users', views.index),
-    path('api/newMessages', views.new_messages, name='new_messages'),
-    path('api/searchUser', views.index),
-    path('api/messages', views.index),
-    path('api/starMessage', views.star_messages),
-    path('api/getstarred', views.get_starred, name="get_starred"),
-    path('api/sendFile', views.send_file),
-    path('api/sendMedia', views.send_media),
-    path('api/messagesByDate', views.index),
-    path('api/messageByUser', views.filter_user),
-    path('api/messageByKeywords', views.index),
-    path('api/pagination/', views.pagination),
-    path('api/userProfile', views.user_profile, name='user_profile'),
-    path('api/editUserProfile', views.index),
-    path('api/replyMessage', views.replyMessage, name='reply_message'),
-    path('api/userStatus', views.index),
-    path('api/DMList', views.dm_list),
-    path('api/pinMessage', views.index),
-    path('api/pinnedMessages', views.index),
-    path('api/archiveMessage', views.index),
-    path('api/archivedMessages', views.list_archives, name='list_archives'),
-    path('api/editMessage', views.index),
-    # using url and regular expressions to do GET/PUT/DELETE
-    url(r'^api/message_list/(?P<pk>[0-9]+)$', views.messages_list),
-    path('api/deleteMessage', views.index),
-    path('api/sortMessage', views.sort_message),
-    # Specific Routes for tasks
-    path('api/users', views.index),
-    path('api/newMessages', views.new_messages, name='new_messages'),
-    path('api/searchUser', views.index),
-    path('api/messages', views.index),
-    path('api/starMessage', views.star_messages),
-    path('api/getstarred', views.get_starred, name="get_starred"),
-    path('api/sendFile', views.send_file),
-    path('api/sendMedia', views.send_media),
-    path('api/messagesByDate', views.index),
-    path('api/messageByUser', views.filter_user),
-    path('api/messageByKeywords', views.index),
-    path('api/pagination/', views.pagination),
-    path('api/userProfile', views.user_profile, name='user_profile'),
-    path('api/editUserProfile', views.index),
-    path('api/forwardMessages', views.index),
-    path('api/replyMessage', views.replyMessage, name='reply_message'),
-    path('api/userStatus', views.index),
-    path('api/DMList', views.dm_list),
-    path('api/pinMessage', views.index),
-    path('api/pinnedMessages', views.index),
-    path('api/archiveMessage', views.index),
-    path('api/archivedMessages', views.list_archives, name='list_archives'),
-    path('api/editMessage', views.edit_message, name='edit_messages'),
-    path('api/deleteMessage', views.index),
-    path('api/sortMessage', views.sort_message),
-    path('api/autoResponse', views.auto_response, name="auto_response"),
-    path('api/setReminder', views.message_reminder, name="message_reminder"),
-    path('messages', views.messages, name='messages'),
-    path('star_messages', views.star_messages, name='star_messages'),
-    path('archive_message', views.archive_message, name="archive_message"),
 
-]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

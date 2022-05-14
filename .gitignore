@@ -4,20 +4,28 @@ db.sqlite3
 env/
 /.env
 .env
+static
+venv
+.venv
+venv/
 
 # Django
 *.log
 *.pot
 *.pyc
 *__pycache__
+database.sqlite
+.coverage
 
 *.idea
-=======
-.idea
 
+*Pipfile.lock
+Pipfile.lock
 # *media
 *.DS_Store
-
+/.vscode
 /__pycache__
+.yarn
+*/node_modules
 
-
+node_modules

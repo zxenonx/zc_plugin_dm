@@ -1,0 +1,66 @@
+.dm-chatContainerBox {
+  width: 100%;
+  height: 100%;
+  padding-right: 0;
+  overflow: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.dm-chatContainerBox::-webkit-scrollbar {
+  display: none;
+}
+.asideContent {
+  width: 0;
+}
+
+.asideContent.active {
+  width: 340px;
+  transition: all 0.005s ease-out;
+}
+.dm-chat-main-container {
+  display: flex;
+  flex-direction: column-reverse;
+  position: relative;
+}
+
+.dm-chat-main-container-sticky-date {
+  width: 94px;
+  height: 27px;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  position: sticky;
+}
+.dm-chat-main-container-sticky-date:hover {
+  cursor: pointer;
+}
+
+.__date_tag {
+  position: sticky;
+  top: 0px;
+  background: white;
+  width: 120px;
+  margin: 0px auto;
+  border-radius: 25px;
+  padding: 7px 9px;
+  display: flex;
+  gap: 5px;
+  color: gray;
+  font-family: Lato;
+  font-size: 15px;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  box-shadow: 1px 1px 3px gainsboro;
+  cursor: pointer;
+  transition: 1s ease-in-out;
+}
+
+.__date_tag:hover {
+  color: black;
+}
