@@ -36,10 +36,4 @@ def job():
     # Process if new data to update
     last_queue_id = queue[len(queue) - 1]("id")
 
-    for data in queue:
-        if data["event"] == "enter_organization":
-            pass
-
-        if data["event"] == "leave_organization":
-            pass
     return Response(data="ok", status=status.HTTP_200_OK)

@@ -38,7 +38,6 @@ class ThreadListView(generics.ListCreateAPIView):
             400: "Error: Bad Request",
         },
     )
-    # @method_decorator(db_init_with_credentials)
     def get(
         self,
         request,
@@ -62,7 +61,7 @@ class ThreadListView(generics.ListCreateAPIView):
         message = data_storage.read(MESSAGES, {"_id": message_id, "room_id": room_id})
         paginator = PageNumberPagination()
         paginator.page_size = 20
-        if message and message.get("status_code", None) == None:
+        if message and message.get("status_code", None) is None:
             threads = message.get("threads")
             threads.reverse()
             response = paginator.paginate_queryset(threads, request)
@@ -104,7 +103,7 @@ class ThreadListView(generics.ListCreateAPIView):
                 MESSAGES, {"_id": message_id, "room_id": room_id}
             )  # fetch message from zc
 
-            if message and message.get("status_code", None) == None:
+            if message and message.get("status_code", None) is None:
                 threads = message.get("threads", [])  # get threads
                 # remove message id from request to zc core
                 del data["message_id"]
@@ -204,7 +203,7 @@ class ThreadDetailView(generics.RetrieveUpdateDestroyAPIView):
         data_storage = DataStorage()
         data_storage.organization_id = org_id
         message = data_storage.read(MESSAGES, {"_id": message_id, "room_id": room_id})
-        if message and message.get("status_code", None) == None:
+        if message and message.get("status_code", None) is None:
             threads: List[Dict] = message.get("threads")
             if threads:
                 for thread in threads:
@@ -370,11 +369,11 @@ def update_thread_read_status(request, room_id, message_id, thread_message_id):
                 thread_message = None
             if thread_message:
                 thread_message["read"] = not thread_message["read"]
-                data = {"read": thread_message["read"]}
                 response = DB.update(
                     MESSAGES, message_id, {"threads": message["threads"]}
                 )
                 if response and response.get("status") == 200:
+                    data = {"read": thread_message["read"]}
                     return Response(data, status=status.HTTP_201_CREATED)
                 return Response(
                     data="Message status not updated",
@@ -541,7 +540,6 @@ def pinned_thread_message(request, room_id, message_id, thread_message_id):
                         if centrifugo_data.get("error", None) == None:
                             return Response(data=data, status=status.HTTP_201_CREATED)
                     return Response(status=response.status_code)
-                return Response(status=res.status_code)
             else:
                 current_pin = {
                     "message_id": message_id,
@@ -561,10 +559,10 @@ def pinned_thread_message(request, room_id, message_id, thread_message_id):
                     response = DB.update(ROOMS, room_id, {"pinned": pin})
                     if response["status"] == 200:
                         centrifugo_data = send_centrifugo_data(room=room_id, data=data)
-                        if centrifugo_data.get("error", None) == None:
+                        if centrifugo_data.get("error", None) is None:
                             return Response(data=data, status=status.HTTP_201_CREATED)
                     return Response(status=response.status_code)
-                return Response(status=res.status_code)
+            return Response(status=res.status_code)
         return Response(data="No such thread message", status=status.HTTP_404_NOT_FOUND)
     return Response(data="Parent message not found", status=status.HTTP_404_NOT_FOUND)
 
@@ -580,8 +578,7 @@ def get_all_threads(request, member_id: str):
         # print(f"the room ", rooms)
         for room in rooms:
             # print(f"the room ", room)
-            data = {}
-            data["room_id"] = room.get("_id")
+            data = {'room_id': room.get("_id")}
             data["room_name"] = room.get("room_name")
             messages = DB.read(MESSAGES, {"room_id": room.get("_id")})
             if messages:
@@ -599,7 +596,7 @@ def get_all_threads(request, member_id: str):
                         data="No threads found", status=status.HTTP_204_NO_CONTENT
                     )
             threads_list.put(data)
-            print(f"lst qur", threads_list)
+            print('lst qur', threads_list)
             return Response(data="No messages found", status=status.HTTP_204_NO_CONTENT)
 
     return Response(data="No rooms created yet", status=status.HTTP_204_NO_CONTENT)
