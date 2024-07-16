@@ -28,3 +28,4 @@ sqlparse==0.4.1
 uritemplate==3.0.1
 urllib3==1.26.6
 whitenoise==5.3.0
+setuptools>=70.0.0 # not directly required, pinned by Snyk to avoid a vulnerability
