@@ -23,7 +23,7 @@
         "single-spa-vue": "^2.1.0",
         "systemjs-webpack-interop": "^2.3.7",
         "v-emoji-picker": "^2.3.3",
-        "vue": "^2.6.11",
+        "vue": "^3.0.0",
         "vue-router": "^3.2.0",
         "vuex": "^3.4.0"
     },
