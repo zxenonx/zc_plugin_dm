@@ -70,6 +70,6 @@
         "redux-thunk": "^2.3.0",
         "single-spa-react": "^4.3.1",
         "styled-components": "^5.3.1",
-        "yarn": "^1.22.11"
+        "yarn": "^1.22.13"
     }
 }
