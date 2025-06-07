@@ -1,6 +1,6 @@
 APScheduler==3.8.0
 asgiref==3.4.1
-certifi==2021.5.30
+certifi==2024.7.4
 charset-normalizer==2.0.4
 coreapi==2.3.3
 coreschema==0.0.4
