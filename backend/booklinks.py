@@ -187,19 +187,18 @@ def copy_message_link(request, message_id):
     or a 204 status code if there is no message with the same message id.
     The message information returned is used to generate a link which contains a room_id and a message_id
     """
-    if request.method == "GET":
-        message = DB.read("dm_messages", {"id": message_id})
-        room_id = message["room_id"]
-        message_info = {
-            "room_id": room_id,
-            "message_id": message_id,
-            "link": f"https://dm.zuri.chat/getmessage/{room_id}/{message_id}",
-        }
-        return Response(data=message_info, status=status.HTTP_200_OK)
-    else:
+    if request.method != "GET":
         return Response(
             data="The message does not exist", status=status.HTTP_404_NOT_FOUND
         )
+    message = DB.read("dm_messages", {"id": message_id})
+    room_id = message["room_id"]
+    message_info = {
+        "room_id": room_id,
+        "message_id": message_id,
+        "link": f"https://dm.zuri.chat/getmessage/{room_id}/{message_id}",
+    }
+    return Response(data=message_info, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

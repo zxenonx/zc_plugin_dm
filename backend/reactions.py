@@ -58,7 +58,6 @@ class Emoji(APIView):
         operation_summary="Creates and keeps tracks of reactions to messages",
         responses={201: "OK: Success!", 400: "Error: Bad Request"},
     )
-    # @method_decorator(db_init_with_credentials)
     def post(self, request, org_id: str, room_id: str, message_id: str):
         request.data["message_id"] = message_id
         serializer = EmojiSerializer(data=request.data)
@@ -95,7 +94,7 @@ class Emoji(APIView):
                         centrifugo_data = centrifugo_client.publish(
                             room=message["room_id"], data=response_output
                         )  # publish data to centrifugo
-                        if centrifugo_data["message"].get("error", None) == None:
+                        if centrifugo_data["message"].get("error", None) is None:
                             return Response(
                                 data=response_output, status=status.HTTP_201_CREATED
                             )
@@ -249,7 +248,7 @@ class ThreadEmoji(APIView):
                         centrifugo_data = centrifugo_client.publish(
                             room=message["room_id"], data=response_output
                         )  # publish data to centrifugo
-                        if centrifugo_data["message"].get("error", None) == None:
+                        if centrifugo_data["message"].get("error", None) is None:
                             return Response(
                                 data=response_output, status=status.HTTP_201_CREATED
                             )
