@@ -222,7 +222,7 @@ def get_rooms(user_id, org_id):
                         data.append(room)
                 except Exception:
                     pass
-        if len(data) == 0:
+        if not data:
             data = []
             return data
         return data
@@ -260,7 +260,7 @@ def get_messages(response, date):
                     res.append(message)
             except Exception:
                 pass
-        if len(res) == 0:
+        if not res:
             res = None
             return res
         return res
@@ -297,9 +297,11 @@ def sidebar_emitter(
     if user_rooms != None:
         for room in user_rooms:
             if org_id == room["org_id"]:
-                room_profile = {}
-                room_profile["room_id"] = room["_id"]
-                room_profile["room_url"] = f"/dm/{org_id}/{room['_id']}/{member_id}"
+                room_profile = {
+                    'room_id': room["_id"],
+                    'room_url': f"/dm/{org_id}/{room['_id']}/{member_id}",
+                }
+
                 for user_id in room["room_user_ids"]:
                     if user_id != member_id:
                         profile = get_user_profile(org_id, user_id)
@@ -309,20 +311,12 @@ def sidebar_emitter(
                                 # overwrite room_name in profile to = String of Names
                                 room_profile["room_name"] = group_room_name
                             else:
-                                if profile["data"]["user_name"]:
-                                    room_profile["room_name"] = profile["data"][
-                                        "user_name"
-                                    ]
-                                else:
-                                    room_profile["room_name"] = "no user name"
-                            if profile["data"]["image_url"]:
-                                room_profile["room_image"] = profile["data"][
-                                    "image_url"
-                                ]
-                            else:
-                                room_profile[
-                                    "room_image"
-                                ] = "https://cdn.iconscout.com/icon/free/png-256/account-avatar-profile-human-man-user-30448.png"
+                                room_profile["room_name"] = profile["data"]["user_name"] or "no user name"
+                            room_profile["room_image"] = (
+                                profile["data"]["image_url"]
+                                or "https://cdn.iconscout.com/icon/free/png-256/account-avatar-profile-human-man-user-30448.png"
+                            )
+
                         else:
                             room_profile["room_name"] = "no user name"
                             room_profile[
