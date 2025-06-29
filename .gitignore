@@ -29,3 +29,5 @@ Pipfile.lock
 */node_modules
 
 node_modules
+temp_auto_push.bat
+temp_interactive_push.bat
