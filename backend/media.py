@@ -53,7 +53,6 @@ class SendFile(APIView):
             201: "OK: File Created!",
         },
     )
-    # @method_decorator(db_init_with_credentials)
     def post(self, request, room_id, org_id):
         print(request.FILES)
         token = request.META.get("HTTP_AUTHORIZATION")
@@ -63,22 +62,18 @@ class SendFile(APIView):
             if len(files) == 1:
                 for file in request.FILES.getlist("file"):
                     file_data = DB.upload(file=file, token=token)
-                    if file_data["status"] == 200:
-                        for datum in file_data["data"]["files_info"]:
-                            file_urls.append(datum["file_url"])
-                    else:
+                    if file_data["status"] != 200:
                         return Response(file_data)
-            elif len(files) > 1:
-                multiple_files = []
-                for file in files:
-                    multiple_files.append(("file", file))
-                file_data = DB.upload_more(files=multiple_files, token=token)
-                if file_data["status"] == 200:
                     for datum in file_data["data"]["files_info"]:
                         file_urls.append(datum["file_url"])
-                else:
+            elif len(files) > 1:
+                multiple_files = [("file", file) for file in files]
+                file_data = DB.upload_more(files=multiple_files, token=token)
+                if file_data["status"] != 200:
                     return Response(file_data)
 
+                for datum in file_data["data"]["files_info"]:
+                    file_urls.append(datum["file_url"])
             request.data["room_id"] = room_id
             print(request)
             serializer = MessageSerializer(data=request.data)
@@ -88,7 +83,7 @@ class SendFile(APIView):
                 room_id = data["room_id"]  # room id gotten from client request
 
                 room = DB.read("dm_rooms", {"_id": room_id})
-                if room and room.get("status_code", None) == None:
+                if room and room.get("status_code", None) is None:
                     if data["sender_id"] in room.get("room_user_ids", []):
                         data["media"] = file_urls
                         response = DB.write("dm_messages", data=data)
