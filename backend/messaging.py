@@ -220,7 +220,10 @@ def delete_message(request, message_id, room_id):
                 )
         return Response("message not found", status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error("An error occurred while deleting a message", exc_info=True)
+        return Response("An internal error occurred.", status=status.HTTP_400_BAD_REQUEST)
 
 
 @swagger_auto_schema(
