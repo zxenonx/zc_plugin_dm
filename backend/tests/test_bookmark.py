@@ -59,6 +59,6 @@ class BookmarkEndpointTestCase(TestCase):
                     }
                 ),
             data=payload)
-        
+
         self.assertEqual(response.status_code, 503)
-        self.assertTrue(response.data == None)
+        self.assertTrue(response.data is None)
