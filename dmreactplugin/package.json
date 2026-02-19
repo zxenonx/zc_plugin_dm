@@ -25,7 +25,7 @@
         "@babel/runtime": "^7.15.3",
         "@testing-library/jest-dom": "^5.14.1",
         "@testing-library/react": "^12.0.0",
-        "axios": "^0.21.1",
+        "axios": "^0.30.3",
         "babel-jest": "^27.0.6",
         "bootstrap": "^5.1.1",
         "centrifuge": "^2.8.2",
@@ -45,10 +45,10 @@
         "redux": "^4.1.1",
         "redux-logger": "^3.0.6",
         "redux-thunk": "^2.3.0",
-        "webpack": "^5.51.1",
+        "webpack": "^5.105.2",
         "webpack-cli": "^4.8.0",
         "webpack-config-single-spa-react": "^4.0.0",
-        "webpack-dev-server": "^4.0.0",
+        "webpack-dev-server": "^5.2.1",
         "webpack-merge": "^5.8.0"
     },
     "dependencies": {
